@@ -19,17 +19,17 @@
 
 ## Demo
 
-1.[Input组件，自带实时监测功能，同时可以自定义化他的组件](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorDemo)
-2.[checkbox组件，自带监测功能，并且reducer使用了ReducerOperator](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorOperatorDemo)
-3.[Tap组件，实现组件嵌套逻辑](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorWrapDemo)
-4.[动态表单，实现动态的reducer](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorDynamicDemo)
-5.[创意模块，实现根据配置生成的表单，包括集装箱](https://github.com/JanzenZhangChen/collector/tree/master/CollectorCreativesDemo/src)
+ 1. [Input组件，自带实时监测功能，同时可以自定义化他的组件](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorDemo)
+ 2. [checkbox组件，自带监测功能，并且reducer使用了ReducerOperator](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorOperatorDemo)
+ 3. [Tap组件，实现组件嵌套逻辑](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorWrapDemo)
+ 4. [动态表单，实现动态的reducer](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorDynamicDemo)
+ 5. [创意模块，实现根据配置生成的表单，包括集装箱](https://github.com/JanzenZhangChen/collector/tree/master/CollectorCreativesDemo/src)
 
 ----------
 
 ## Next
 
-1.收集意见与改进
-2.定向包需求上线该功能
-3.重构phoenix的定向
+ 1. 收集意见与改进
+ 2. 定向包需求上线该功能
+ 3. 重构phoenix的定向
 ...
