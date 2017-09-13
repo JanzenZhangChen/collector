@@ -19,6 +19,7 @@
  3. [Tap组件，实现组件嵌套逻辑](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorWrapDemo)
  4. [集装箱表单，实现动态的reducer](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorDynamicDemo)
  5. [创意模块，实现根据配置生成的表单，包括集装箱](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorCreativesDemo)
+ 6. [模拟定向模块，实现根据配置生成可选择的表单](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorTargetsDemo)
 
 ## Next
 
