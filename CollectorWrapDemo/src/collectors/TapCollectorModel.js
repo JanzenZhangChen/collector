@@ -76,21 +76,22 @@ const TapCollectorModel = {
         }
     },
     _services: {
-        onChange: (tap) => (dispatch, getState$, collector) => {
-            dispatch(collector.actions.setSelectedTap(tap.name))
+        onChange: (tap) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setSelectedTap(tap.name))
         },
-        validate: () => (dispatch, getState$, collector) => {
+        validate: () => (dispatch$, getState$, collector) => {
             return new Promise((resolve, reject) => {
                 let {selectedTapName, value} = getState$()
                 if (selectedTapName) {
                     collector.options.taps.forEach((tap) => {
                         if (tap.name == selectedTapName) {
-                            tap.child._services.validate()(dispatch, () => {
-                                return {
-                                    data: value[tap.name].data,
-                                    error: value[tap.name].error
-                                }
-                            }, tap.child).then(resolve, reject)
+                            // tap.child._services.validate()(dispatch, () => {
+                            //     return {
+                            //         data: value[tap.name].data,
+                            //         error: value[tap.name].error
+                            //     }
+                            // }, tap.child).then(resolve, reject)
+                            dispatch$(tap.child, 'validate').then(resolve, reject)
                         }
                     })
                 } else {

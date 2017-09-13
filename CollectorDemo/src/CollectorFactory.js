@@ -8,11 +8,11 @@ const CollectorFactory = (collector, customeCollector) => {
         return new Date().getTime() + parseInt(Math.random() * 100000000, 10)
     }
 
-    const _dispatch$ = (dispatch, getState$) => (targetCollector, serviceName, ...args) => {
+    const _dispatch$ = (dispatch, getState) => (targetCollector, serviceName, ...args) => {
         // 如果有serviceName的话 就说明dispatch一个service
         if (serviceName && typeof targetCollector._services[serviceName] == 'function') {
             return targetCollector._services[serviceName](...args)(dispatch, () => {
-                return targetCollector.mapStateToProps(getState$())
+                return targetCollector.mapStateToProps(getState())
             }, targetCollector)
         } else {
             // 否则说明是dispatch一个action
@@ -56,7 +56,7 @@ const CollectorFactory = (collector, customeCollector) => {
             const getState$ = () => {
                 return newCollector.mapStateToProps(getState())
             }
-            const dispatch$ = _dispatch$(dispatch, getState$)
+            const dispatch$ = _dispatch$(dispatch, getState)
             return newCollector._services[key](...args)(dispatch$, getState$, newCollector)
         }
     })
