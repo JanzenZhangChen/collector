@@ -90,7 +90,7 @@ const TargetItemModel = {
     },
     childDataReducer: (state = {}) => state,
     _services: {
-        updateRedcuer: () => (dispatch, getState$, collector) => {
+        updateRedcuer: () => (dispatch$, getState$, collector) => {
             const { child } = getState$()
             if (child) {
                 // 设置获取value的Reducer，由子reducer组成 这个函数会成为reducer，每一次action都会调用一次噢
@@ -99,11 +99,11 @@ const TargetItemModel = {
                 collector.childDataReducer = (state = false) => state
             }
             // 为了让reducer生成默认值
-            dispatch({
+            dispatch$({
                 type: collector.actionTypes.emptyAction
             })
         },
-        onSwitch: () => (dispatch, getState$, collector) => {
+        onSwitch: () => (dispatch$, getState$, collector) => {
             let { status, child } = getState$()
             // 第一次打开
             if (!child) {
@@ -126,7 +126,7 @@ const TargetItemModel = {
                                 min: subConfig.min,
                                 max: subConfig.max,
                                 onChange: (value, child) => {
-                                    dispatch(child.actions.setErrorMsg(''))
+                                    dispatch$(child.actions.setErrorMsg(''))
                                     collector.options.onChange()
                                 }
                             }
@@ -139,7 +139,7 @@ const TargetItemModel = {
                                 max: subConfig.max,
                                 list: subConfig.list,
                                 onChange: (value, child) => {
-                                    dispatch(child.actions.setErrorMsg(''))
+                                    dispatch$(child.actions.setErrorMsg(''))
                                     collector.options.onChange()
                                 }
                             }
@@ -150,20 +150,18 @@ const TargetItemModel = {
                     return CollectorFactory(typeModelMap[subConfig.type], childModel)
                 }
                 child = generateCollector(collector.options.config) 
-                dispatch(collector.actions.setChild(child))
-                dispatch(collector.services.updateRedcuer())
+                dispatch$(collector.actions.setChild(child))
+                dispatch$(collector, 'updateRedcuer')
                 if (collector.options.onSwitch) {
                     collector.options.onSwitch(collector)
                 }
             }
             // 设置开关
-            dispatch(collector.actions.setChecked(!status.checked))
+            dispatch$(collector.actions.setChecked(!status.checked))
         },
-        validate: () => (dispatch, getState$, collector) => {
+        validate: () => (dispatch$, getState$, collector) => {
             let { child } = getState$()
-            return child._services.validate()(dispatch, () => {
-                return child.mapStateToProps(getState$())
-            }, child)
+            return dispatch$(child, 'validate')
         }
     }
 }

@@ -64,7 +64,7 @@ const AdtargetsModel = {
     },
     dataReducer: (state = {}) => state,
     _services: {
-        updateRedcuer: () => (dispatch, getState$, collector) => {
+        updateRedcuer: () => (dispatch$, getState$, collector) => {
             const { childs } = getState$()
 
             if (Object.keys(childs).length > 0) {
@@ -79,11 +79,11 @@ const AdtargetsModel = {
                 collector.dataReducer = (state = {}) => state
             }
             // 为了让reducer生成默认值
-            dispatch({
+            dispatch$({
                 type: collector.actionTypes.emptyAction
             })
         },
-        init: (config) => (dispatch, getState$, collector) => {
+        init: (config) => (dispatch$, getState$, collector) => {
             const collectorObj = {}
             Object.keys(config).map((key) => {
                 collectorObj[key] = CollectorFactory(TargetItemModel, {
@@ -91,10 +91,10 @@ const AdtargetsModel = {
                         label: config[key].title,
                         config: config[key],
                         onChange: () => {
-                            collector._services.validate([key])(dispatch, getState$, collector).then(() => {}, () => {})
+                            dispatch$(collector, 'validate', [key]).then(() => {}, () => {})
                         },
                         onSwitch: () => {
-                            collector._services.validate([key])(dispatch, getState$, collector).then(() => {}, () => {})
+                            dispatch$(collector, 'validate', [key]).then(() => {}, () => {})
                         }
                     },
                     key: key,
@@ -105,19 +105,17 @@ const AdtargetsModel = {
                 })
             })
             // 设置childs
-            dispatch(collector.actions.setChilds(collectorObj))
+            dispatch$(collector.actions.setChilds(collectorObj))
             // 更新
-            dispatch(collector.services.updateRedcuer())
+            dispatch$(collector, 'updateRedcuer')
         },
-        validate: (except = []) => (dispatch, getState$, collector) => {
+        validate: (except = []) => (dispatch$, getState$, collector) => {
             const { childs, data } = getState$()
             return Promise.all(Object.keys(childs).map((key) => {
                 let child = childs[key]
                 let subData = data[key]
                 if (!except.includes(child.key) && subData.status.checked) {
-                    return child._services.validate()(dispatch, () => {
-                        return child.mapStateToProps(getState$())
-                    }, child)
+                    return dispatch$(child, 'validate')
                 }
             }))
         }

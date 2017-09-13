@@ -76,7 +76,7 @@ const CheckCollectorModel = {
         }
     },
     _services: {
-        onChange: (item) => (dispatch, getState$, collector) => {
+        onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas
 
@@ -93,9 +93,9 @@ const CheckCollectorModel = {
                 collector.options.onChange(newDatas, collector)
             }
 
-            dispatch(collector.actions.setValue(newDatas))
+            dispatch$(collector.actions.setValue(newDatas))
         },
-        validate: (value) => (dispatch, getState$, collector) => {
+        validate: (value) => (dispatch$, getState$, collector) => {
             if (!value) {
                 let { data } = getState$()
                 value = data
@@ -118,7 +118,7 @@ const CheckCollectorModel = {
                 } else {
                     msg = false
                 }
-                dispatch(collector.actions.setErrorMsg(msg))
+                dispatch$(collector.actions.setErrorMsg(msg))
                 ret ? resolve(value) : reject(msg)
             })
         }

@@ -99,7 +99,7 @@ const CarouselCollectorModel = {
     },
     dataReducer: state => state, // 动态reducer
     _services: {
-        updateRedcuer: () => (dispatch, getState$, collector) => {
+        updateRedcuer: () => (dispatch$, getState$, collector) => {
             // 设置获取value的Reducer，由子reducer组成 这个函数会成为reducer，每一次action都会调用一次噢
             collector.dataReducer = (state = [], action) => {
                 // 设置的逻辑
@@ -120,11 +120,11 @@ const CarouselCollectorModel = {
                 return state
             }
             // 为了让reducer生成默认值
-            dispatch({
+            dispatch$({
                 type: collector.actionTypes.emptyAction
             })
         },
-        init: () => (dispatch, getState$, collector) => {
+        init: () => (dispatch$, getState$, collector) => {
             const childs = []
             // 生成childs collector实例 同时根据情况设置mapStateToProps
             for(let i = 0; i < collector.options.min; i++) {
@@ -136,11 +136,11 @@ const CarouselCollectorModel = {
                 childs.push(CollectorFactory(InputCollectorModel, newChildModel));
             }
             // 设置childs
-            dispatch(collector.actions.setChilds(childs))
+            dispatch$(collector.actions.setChilds(childs))
             // 更新reducer
-            dispatch(collector.services.updateRedcuer())
+            dispatch$(collector, 'updateRedcuer')
         },
-        onAdd: () => (dispatch, getState$, collector) => {
+        onAdd: () => (dispatch$, getState$, collector) => {
             let {childs} = getState$()
             let childsLength = childs.length
             let newChildModel = Object.assign({}, collector.options.childModel)
@@ -150,11 +150,11 @@ const CarouselCollectorModel = {
             }
             let newChilds = childs.concat([CollectorFactory(InputCollectorModel, newChildModel)])
             // 设置childs
-            dispatch(collector.actions.setChilds(newChilds))
+            dispatch$(collector.actions.setChilds(newChilds))
             // 更新reducer
-            dispatch(collector.services.updateRedcuer())
+            dispatch$(collector, 'updateRedcuer')
         },
-        onDelete: (deleteIndex, child) => (dispatch, getState$, collector) => {
+        onDelete: (deleteIndex, child) => (dispatch$, getState$, collector) => {
             let {value, childs} = getState$()
             let rightChilds = childs.filter((child, index) => {
                 return index != deleteIndex
@@ -173,20 +173,17 @@ const CarouselCollectorModel = {
                 return idx != deleteIndex
             })
             // 先将值设置正确
-            dispatch(collector.actions.setValue(newValue))
+            dispatch$(collector.actions.setValue(newValue))
             // 设置childs
-            dispatch(collector.actions.setChilds(newChilds))
+            dispatch$(collector.actions.setChilds(newChilds))
             // 更新reducer
-            dispatch(collector.services.updateRedcuer())
+            dispatch$(collector, 'updateRedcuer')
         },
-        validate: (value) => (dispatch, getState$, collector) => {
+        validate: (value) => (dispatch$, getState$, collector) => {
             return new Promise((resolve, reject) => {
                 let {childs} = getState$()
                 Promise.all(childs.map((child, index) => {
-                    return child._services.validate()(dispatch, () => {
-                        let carouselState = getState$()
-                        return carouselState.value[index] || {}
-                    }, child)
+                    return dispatch$(child, 'validate')
                 })).then((args) => {
                     resolve(args)
                 }, (msg) => {

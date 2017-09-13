@@ -85,14 +85,14 @@ const InputCollectorModel = {
         }
     },
     _services: {
-        onChange: (value) => (dispatch, getState$, collector) => {
+        onChange: (value) => (dispatch$, getState$, collector) => {
             if (collector.options.onChange) {
                 collector.options.onChange(value, collector)
             }
             // 设置数据
-            dispatch(collector.actions.setValue(value))
+            dispatch$(collector.actions.setValue(value))
         },
-        validate: (value) => (dispatch, getState$, collector) => {
+        validate: (value) => (dispatch$, getState$, collector) => {
             if (!value) {
                 let { data } = getState$()
                 value = data
@@ -115,7 +115,7 @@ const InputCollectorModel = {
                 } else {
                     msg = false
                 }
-                dispatch(collector.actions.setErrorMsg(msg))
+                dispatch$(collector.actions.setErrorMsg(msg))
                 ret ? resolve(value) : reject(msg)
             })
         }

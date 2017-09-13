@@ -70,7 +70,7 @@ const CreativesCollectorModel = {
     },
     dataReducer: state => state, // 动态reducer
     _services: {
-        updateRedcuer: () => (dispatch, getState$, collector) => {
+        updateRedcuer: () => (dispatch$, getState$, collector) => {
             // 设置获取value的Reducer，由子reducer组成 这个函数会成为reducer，每一次action都会调用一次噢
             collector.dataReducer = (state = {}, action) => {
                 let childs = getState$().childs,
@@ -81,11 +81,11 @@ const CreativesCollectorModel = {
                 return newState
             }
             // 为了让reducer生成默认值，所以触发一次空action, 效果和redux自带的 {type:@@INIT} 一样
-            dispatch({
+            dispatch$({
                 type: collector.actionTypes.emptyAction
             })
         },
-        init: (config) => (dispatch, getState$, collector) => {
+        init: (config) => (dispatch$, getState$, collector) => {
             // 映射
             const typeModelMap = {
                 string: InputCollectorModel,
@@ -150,24 +150,21 @@ const CreativesCollectorModel = {
 
             //设置默认值
             // 设置childs
-            dispatch(collector.actions.setChilds(childs))
+            dispatch$(collector.actions.setChilds(childs))
             // 更新reducer
-            dispatch(collector.services.updateRedcuer())
+            dispatch$(collector, 'updateRedcuer')
 
             _.forEach(config, (ele, key) => {
                 if (ele.type == 'carousel') {
-                    dispatch(childs[key].services.init())
+                    dispatch$(childs[key], 'init')
                 }
             })
         },
-        validate: (value) => (dispatch, getState$, collector) => {
+        validate: (value) => (dispatch$, getState$, collector) => {
             return new Promise((resolve, reject) => {
                 const {childs} = getState$()
                 Promise.all(Object.keys(childs).map((key) => {
-                    return childs[key]._services.validate()(dispatch, () => {
-                        let carouselState = getState$()
-                        return carouselState.value[key] || {}
-                    }, childs[key])
+                    return dispatch$(childs[key], 'validate')
                 })).then((args) => {
                     let value = {}
                     Object.keys(childs).forEach((key, index) => {

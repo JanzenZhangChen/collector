@@ -8,10 +8,11 @@ const CollectorFactory = (collector, customeCollector) => {
         return new Date().getTime() + parseInt(Math.random() * 100000000, 10)
     }
 
+    // dispatch$的构造函数，通过这个可以快速dispatch一个service
     const _dispatch$ = (dispatch, getState) => (targetCollector, serviceName, ...args) => {
         // 如果有serviceName的话 就说明dispatch一个service
         if (serviceName && typeof targetCollector._services[serviceName] == 'function') {
-            return targetCollector._services[serviceName](...args)(dispatch, () => {
+            return targetCollector._services[serviceName](...args)(_dispatch$(dispatch, getState), () => {
                 return targetCollector.mapStateToProps(getState())
             }, targetCollector)
         } else {

@@ -8,6 +8,19 @@ const CollectorFactory = (collector, customeCollector) => {
         return new Date().getTime() + parseInt(Math.random() * 100000000, 10)
     }
 
+    // dispatch$的构造函数，通过这个可以快速dispatch一个service
+    const _dispatch$ = (dispatch, getState) => (targetCollector, serviceName, ...args) => {
+        // 如果有serviceName的话 就说明dispatch一个service
+        if (serviceName && typeof targetCollector._services[serviceName] == 'function') {
+            return targetCollector._services[serviceName](...args)(_dispatch$(dispatch, getState), () => {
+                return targetCollector.mapStateToProps(getState())
+            }, targetCollector)
+        } else {
+            // 否则说明是dispatch一个action
+            dispatch(targetCollector)
+        }
+    }
+
     // 自定义前缀
     newCollector.actionTypePrefix = generateRamdomTypePrefix()
 
@@ -41,9 +54,11 @@ const CollectorFactory = (collector, customeCollector) => {
     newCollector.services = {}
     Object.keys(newCollector._services).forEach((key) => {
         newCollector.services[key] = (...args) => (dispatch, getState) => {
-            return newCollector._services[key](...args)(dispatch, () => {
+            const getState$ = () => {
                 return newCollector.mapStateToProps(getState())
-            }, newCollector)
+            }
+            const dispatch$ = _dispatch$(dispatch, getState)
+            return newCollector._services[key](...args)(dispatch$, getState$, newCollector)
         }
     })
 

@@ -77,7 +77,7 @@ const CheckCollectorModel = {
         }
     },
     _services: {
-        onChange: (item) => (dispatch, getState$, collector) => {
+        onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas
 
@@ -89,11 +89,12 @@ const CheckCollectorModel = {
             } else {
                 newDatas = data.concat([item.value])
             }
-            dispatch(collector.actions.setValue(newDatas))
+            dispatch$(collector.actions.setValue(newDatas))
             // 检验数据是否正确
-            collector._services.validate(newDatas)(dispatch, getState$, collector).then(() => {}, () => {})
+            // collector._services.validate(newDatas)(dispatch, getState$, collector).then(() => {}, () => {})
+            dispatch$(collector, 'validate', newDatas).then(() => {}, () => {})
         },
-        validate: (value) => (dispatch, getState$, collector) => {
+        validate: (value) => (dispatch$, getState$, collector) => {
             if (!value) {
                 let { data } = getState$()
                 value = data
@@ -116,7 +117,7 @@ const CheckCollectorModel = {
                 } else {
                     msg = false
                 }
-                dispatch(collector.actions.setErrorMsg(msg))
+                dispatch$(collector.actions.setErrorMsg(msg))
                 ret ? resolve(value) : reject(msg)
             })
         }
