@@ -153,9 +153,22 @@ render(
 )
 ```
 
- - **Collector之间互相调用service**
+ - **Collector之间互相调用action与service**
 ```javascript
-dispatch$(otherCollector, 'validate').then(resolve, reject)
+const _services = {
+    validate: (value) => (dispatch$, getState$, collector) => {
+        const otherCollector = options.otherCollector
+        // 获取别的人actionTypes来dispatch$
+        dispatch$({
+            type: otherCollector.actionTypes.setValue,
+            value: value
+        })
+        // 或调用actions来dispatch$
+        dispatch$(otherCollector.actions.setValue(value))
+        // 或通过第二个参数dispatch$别人的service。从第三个参数开始为service的参数
+        dispatch$(otherCollector, 'validate', value).then(resolve, reject)   
+    }
+}
 ```
 
 ## Next
