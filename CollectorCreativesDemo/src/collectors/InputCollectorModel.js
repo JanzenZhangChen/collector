@@ -1,15 +1,22 @@
-import React from 'react';
+import React,{ PureComponent } from 'react';
 import { combineReducers } from 'redux'
 import { connect } from 'react-redux'
 
-const InputReact = ({ data, error, label, onChange, onBlur }) => {
-    return (
-        <div>
-            <div>{label}</div>
-            <input value={data} onChange={onChange} onBlur={onBlur}/>
-            {error ? <div style={{ color: 'red' }}>{error}</div> : null}
-        </div>
-    )
+class InputReact extends PureComponent {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        const { data = '', error, label, onChange, onBlur } = this.props
+        return (
+            <div>
+                <div>{label}</div>
+                <input value={data} onChange={onChange} onBlur={onBlur}/>
+                {error ? <div style={{ color: 'red' }}>{error}</div> : null}
+            </div>
+        )
+    }
 }
 
 const dataReducer = (collector) => (state = '', action) => {

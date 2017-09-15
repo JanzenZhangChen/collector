@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { combineReducers } from 'redux'
 import { connect } from 'react-redux'
 import ReducerOperatorFactory from '../ReducerOperatorFactory'
@@ -8,23 +8,31 @@ import CheckboxCollectorModel from './CheckboxCollectorModel'
 import CarouselCollectorModel from './CarouselCollectorModel'
 import _ from 'lodash'
 
-const Creatives = ({childs, label}) => {
-    return (
-        <div>
-            <div>{label}</div>
-            <br/>
-            {Object.keys(childs).map((key) => {
-                let child = childs[key]
-                return (
-                    <div key={child.actionTypePrefix} style={{'marginLeft': '50px', 'borderBottom': '1px solid blue'}}>
-                        <child.view />
-                        <br/>
-                    </div>
-                )
-            })}
-            <br/>
-        </div>
-    )
+class Creatives extends PureComponent {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        const {childs, label} = this.props
+
+        return (
+            <div>
+                <div>{label}</div>
+                <br/>
+                {Object.keys(childs).map((key) => {
+                    let child = childs[key]
+                    return (
+                        <div key={child.actionTypePrefix} style={{'marginLeft': '50px', 'borderBottom': '1px solid blue'}}>
+                            <child.view />
+                            <br/>
+                        </div>
+                    )
+                })}
+                <br/>
+            </div>
+        )
+    }
 }
 
 const childsReducer = (collector) => {

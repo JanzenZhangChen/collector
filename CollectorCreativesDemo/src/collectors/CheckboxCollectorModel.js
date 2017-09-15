@@ -1,23 +1,30 @@
-import React from 'react';
+import React,{ PureComponent } from 'react';
 import { combineReducers } from 'redux'
 import { connect } from 'react-redux'
 import ReducerOperatorFactory from '../ReducerOperatorFactory'
 
-const CheckboxReact = ({list = [], data = [], onChange = () => {}, error, label}) => {
-    return (
-        <div>
-            <div>{label}</div>
-            {list.map((item) => {
-                return (
-                    <span key={item.value}>
-                        {item.label}
-                        <input onChange={(e) => {onChange(item)}} type="checkbox" checked={data.includes(item.value)}/>
-                    </span>
-                )
-            })}
-            {error ? <div style={{ color: 'red' }}>{error}</div> : null}
-        </div>
-    )
+class CheckboxReact extends PureComponent {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        const {list = [], data = [], onChange = () => {}, error, label} = this.props
+        return (
+            <div>
+                <div>{label}</div>
+                {list.map((item) => {
+                    return (
+                        <span key={item.value}>
+                            {item.label}
+                            <input onChange={(e) => {onChange(item)}} type="checkbox" checked={data.includes(item.value)}/>
+                        </span>
+                    )
+                })}
+                {error ? <div style={{ color: 'red' }}>{error}</div> : null}
+            </div>
+        )
+    }
 }
 
 const dataReducer = (collector) => {

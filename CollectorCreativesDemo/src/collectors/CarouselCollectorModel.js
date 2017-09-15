@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { combineReducers } from 'redux'
 import { connect } from 'react-redux'
 import ReducerOperatorFactory from '../ReducerOperatorFactory'
@@ -6,24 +6,31 @@ import CollectorFactory from '../CollectorFactory'
 import InputCollectorModel from './InputCollectorModel'
 import _ from 'lodash'
 
-const Carousel = ({childs = [], onAdd, onDelete, label, min, max}) => {
-    return (
-        <div>
-            <div>{label}</div>
-            <br/>
-            {childs.map((child, i) => {
-                return (
-                    <div key={child.actionTypePrefix} style={{'marginLeft': '50px'}}>
-                        <child.view />
-                        {childs.length == min ? null : <button onClick={() => {onDelete(i, child)}}>删除</button>}
-                        <br/>
-                    </div>
-                )
-            })}
-            <br/>
-            {childs.length == max ? null : <button onClick={onAdd}>添加</button>}
-        </div>
-    )
+class Carousel extends PureComponent {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        const {childs = [], onAdd, onDelete, label, min, max} = this.props
+        return (
+            <div>
+                <div>{label}</div>
+                <br/>
+                {childs.map((child, i) => {
+                    return (
+                        <div key={child.actionTypePrefix} style={{'marginLeft': '50px'}}>
+                            <child.view />
+                            {childs.length == min ? null : <button onClick={() => {onDelete(i, child)}}>删除</button>}
+                            <br/>
+                        </div>
+                    )
+                })}
+                <br/>
+                {childs.length == max ? null : <button onClick={onAdd}>添加</button>}
+            </div>
+        )
+    }
 }
 
 const childsReducer = (collector) => {
@@ -102,6 +109,7 @@ const CarouselCollectorModel = {
         updateRedcuer: () => (dispatch$, getState$, collector) => {
             // 设置获取value的Reducer，由子reducer组成 这个函数会成为reducer，每一次action都会调用一次噢
             collector.dataReducer = (state = [], action) => {
+                let hasChanged = false
                 // 设置的逻辑
                 if (action.type == collector.actionTypes.setValue) {
                     return action.value
@@ -113,11 +121,19 @@ const CarouselCollectorModel = {
                     return child.reducers.root
                 })
 
-                state = subReducerArray.map((reducer, index) => {
-                    return reducer(state[index], action)
+                let newState = subReducerArray.map((reducer, index) => {
+                    const value = reducer(state[index], action)
+                    if (value != state[index]) {
+                        hasChanged = true
+                    }
+                    return value
                 })
 
-                return state
+                if (hasChanged) {
+                    return newState
+                } else {
+                    return state
+                }
             }
             // 为了让reducer生成默认值
             dispatch$({
