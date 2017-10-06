@@ -53,5 +53,10 @@ const config = {
     }
 }
 
+const initValue = {
+    name: 'janzenzhang',
+    location: 'guangzhou,China'
+}
+
 // 需要初始化
-store.dispatch(AdtargetsCollector.services.init(config))
+store.dispatch(AdtargetsCollector.services.init(config, initValue))

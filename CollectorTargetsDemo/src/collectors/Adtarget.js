@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import ReducerOperatorFactory from '../ReducerOperatorFactory'
 import CollectorFactory from '../CollectorFactory'
 import TargetItemModel from './TargetItem'
-
+import _ from 'lodash'
 
 const Adtargets = ({childs}) => {
     return (
@@ -25,10 +25,19 @@ const dataReducer = (collector) => (state = {}, action) => {
     return collector.dataReducer(state, action)
 }
 
+const statusReducer = (collector) => {
+    return ReducerOperatorFactory(collector.actionTypes.setStatus, {
+        [collector.actionTypes.setLastTarget]: 'lastTarget'
+    }, {
+        lastTarget: false
+    })
+}
+
 const rootReducer = (collector) => {
     return combineReducers({
         childs: childsReducer(collector),
-        data: dataReducer(collector)
+        data: dataReducer(collector),
+        status: statusReducer(collector)
     })
 }
 
@@ -48,16 +57,24 @@ const AdtargetsModel = {
     _reducers: {
         root: rootReducer,
         data: dataReducer,
+        status: statusReducer,
         childs: childsReducer
     },
     _actionTypes: [
         'setChilds',
-        'emptyAction'
+        'emptyAction',
+        'setLastTarget'
     ],
     _actions: {
         setChilds: (value) => (collector) => {
             return {
                 type: collector.actionTypes.setChilds,
+                value: value
+            }
+        },
+        setLastTarget: (value) => (collector) => {
+            return {
+                type: collector.actionTypes.setLastTarget,
                 value: value
             }
         }
@@ -83,7 +100,7 @@ const AdtargetsModel = {
                 type: collector.actionTypes.emptyAction
             })
         },
-        init: (config) => (dispatch$, getState$, collector) => {
+        init: (config, initValue = {}) => (dispatch$, getState$, collector) => {
             const collectorObj = {}
             Object.keys(config).map((key) => {
                 collectorObj[key] = CollectorFactory(TargetItemModel, {
@@ -91,10 +108,22 @@ const AdtargetsModel = {
                         label: config[key].title,
                         config: config[key],
                         onChange: () => {
-                            dispatch$(collector, 'validate', [key]).then(() => {}, () => {})
+                            const { status } = getState$()
+                            if (status.lastTarget != key) {
+                                dispatch$(collector.actions.setLastTarget(key))
+                                if (status.lastTarget) {
+                                    dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
+                                }
+                            }
                         },
                         onSwitch: () => {
-                            dispatch$(collector, 'validate', [key]).then(() => {}, () => {})
+                            const { status } = getState$()
+                            if (status.lastTarget != key) {
+                                dispatch$(collector.actions.setLastTarget(key))
+                                if (status.lastTarget) {
+                                    dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
+                                }
+                            }
                         }
                     },
                     key: key,
@@ -109,7 +138,7 @@ const AdtargetsModel = {
             // 更新
             dispatch$(collector, 'updateRedcuer')
         },
-        validate: (except = []) => (dispatch$, getState$, collector) => {
+        validateAll: (except = []) => (dispatch$, getState$, collector) => {
             const { childs, data } = getState$()
             return Promise.all(Object.keys(childs).map((key) => {
                 let child = childs[key]
@@ -117,7 +146,19 @@ const AdtargetsModel = {
                 if (!except.includes(child.key) && subData.status.checked) {
                     return dispatch$(child, 'validate')
                 }
+            }).filter((promise) => {
+                return !!promise
             }))
+        },
+        validateSingle: (target = '') => (dispatch$, getState$, collector) => {
+            const { childs, data } = getState$()
+            let ret = new Promise((resolve) => {resolve()})
+            for (let i in childs) {
+                if (childs[i].key == target && data[i].status.checked) {
+                    ret = dispatch$(childs[i], 'validate')
+                }
+            }
+            return ret
         }
     }
 }

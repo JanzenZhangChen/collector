@@ -19,7 +19,7 @@ const CheckboxReact = ({list = [], data = [], onChange = () => {}, error, label}
 }
 
 const dataReducer = (collector) => {
-    return ReducerOperatorFactory(collector.actionTypes.setValue, {}, [])
+    return ReducerOperatorFactory(collector.actionTypes.setValue, {}, [collector.options.list[0].value])
 }
 
 const errorReducer = (collector) => {

@@ -4,7 +4,7 @@ import { AdtargetsCollector } from '../collectors'
 
 const onButtonClick = () => (dispatch, getState) => {
     Promise.all([
-        AdtargetsCollector.services.validate()(dispatch, getState)
+        AdtargetsCollector.services.validateAll()(dispatch, getState)
     ]).then((args) => {
         console.log(`adtargets: ${args}`)
     }, (msg) => {

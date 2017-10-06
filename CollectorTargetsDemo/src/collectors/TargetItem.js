@@ -114,21 +114,13 @@ const TargetItemModel = {
                 }
 
                 const generateCollector = (subConfig) => {
-                    const childModel = {
-                        mapStateToProps: (state) => {
-                            return getState$().childData || {}
-                        }
-                    }
+                    const childModel = {}
                     switch(subConfig.type) {
                         case 'string': {
                             childModel.options = {
                                 label: subConfig.title,
                                 min: subConfig.min,
-                                max: subConfig.max,
-                                onChange: (value, child) => {
-                                    dispatch$(child.actions.setErrorMsg(''))
-                                    collector.options.onChange()
-                                }
+                                max: subConfig.max
                             }
                             break
                         }
@@ -137,16 +129,21 @@ const TargetItemModel = {
                                 label: subConfig.title,
                                 min: subConfig.min,
                                 max: subConfig.max,
-                                list: subConfig.list,
-                                onChange: (value, child) => {
-                                    dispatch$(child.actions.setErrorMsg(''))
-                                    collector.options.onChange()
-                                }
+                                list: subConfig.list
                             }
                             break
                         }
                     }
-
+                    childModel.mapStateToProps = (state) => {
+                        return getState$().childData || {}
+                    }
+                    childModel.options.onChange = (value, child) => {
+                        let { childData } = getState$()
+                        if (childData.error) {
+                            dispatch$(child.actions.setErrorMsg(''))
+                        }
+                        collector.options.onChange && collector.options.onChange()
+                    }
                     return CollectorFactory(typeModelMap[subConfig.type], childModel)
                 }
                 child = generateCollector(collector.options.config) 
