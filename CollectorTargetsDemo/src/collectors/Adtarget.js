@@ -100,7 +100,7 @@ const AdtargetsModel = {
                 type: collector.actionTypes.emptyAction
             })
         },
-        init: (config, initValue = {}) => (dispatch$, getState$, collector) => {
+        init: (config) => (dispatch$, getState$, collector) => {
             const collectorObj = {}
             Object.keys(config).map((key) => {
                 collectorObj[key] = CollectorFactory(TargetItemModel, {
@@ -113,6 +113,8 @@ const AdtargetsModel = {
                                 dispatch$(collector.actions.setLastTarget(key))
                                 if (status.lastTarget) {
                                     dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
+                                } else {
+                                    dispatch$(collector, 'validateAll', [key]).then(() => {}, () => {})
                                 }
                             }
                         },
@@ -122,6 +124,8 @@ const AdtargetsModel = {
                                 dispatch$(collector.actions.setLastTarget(key))
                                 if (status.lastTarget) {
                                     dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
+                                } else {
+                                    dispatch$(collector, 'validateAll', [key]).then(() => {}, () => {})
                                 }
                             }
                         }
@@ -137,6 +141,13 @@ const AdtargetsModel = {
             dispatch$(collector.actions.setChilds(collectorObj))
             // 更新
             dispatch$(collector, 'updateRedcuer')
+        },
+        setValue: (initValue = {}) => (dispatch$, getState$, collector) => {
+            const {childs} = getState$()
+            Object.keys(childs).map((key) => {
+                dispatch$(childs[key], 'setValue', initValue[key])
+            })
+            dispatch$(collector, 'validateAll', []).then(() => {}, () => {})
         },
         validateAll: (except = []) => (dispatch$, getState$, collector) => {
             const { childs, data } = getState$()

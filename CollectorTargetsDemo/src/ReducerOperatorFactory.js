@@ -81,7 +81,7 @@ const ReducerOperatorFactory = (reducerName = '', config, initialState) => (stat
     }
 
     // 如果数据不存在，也赋值一个初始值
-    if (!state || (typeof state == 'object' && _.isEmpty(state))) {
+    if (typeof state == 'undefined') {
         state = initialState
     }
 

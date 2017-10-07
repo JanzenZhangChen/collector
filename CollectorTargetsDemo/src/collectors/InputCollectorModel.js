@@ -85,6 +85,9 @@ const InputCollectorModel = {
         }
     },
     _services: {
+        setValue: (value) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setValue(value))
+        },
         onChange: (value) => (dispatch$, getState$, collector) => {
             if (collector.options.onChange) {
                 collector.options.onChange(value, collector)

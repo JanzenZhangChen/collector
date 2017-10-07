@@ -76,6 +76,9 @@ const CheckCollectorModel = {
         }
     },
     _services: {
+        setValue: (value) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setValue(value))
+        },
         onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas

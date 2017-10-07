@@ -107,58 +107,76 @@ const TargetItemModel = {
             let { status, child } = getState$()
             // 第一次打开
             if (!child) {
+                dispatch$(collector, 'generateCollector')
+            }
+            // 设置开关
+            if (collector.options.onSwitch) {
+                collector.options.onSwitch(collector)
+            }
+            dispatch$(collector.actions.setChecked(!status.checked))
+        },
+        generateCollector: () => (dispatch$, getState$, collector) => {
+            const generateCollector = (subConfig) => {
                 // 映射
                 const typeModelMap = {
                     string: InputCollectorModel,
                     checkbox: CheckboxCollectorModel
                 }
-
-                const generateCollector = (subConfig) => {
-                    const childModel = {}
-                    switch(subConfig.type) {
-                        case 'string': {
-                            childModel.options = {
-                                label: subConfig.title,
-                                min: subConfig.min,
-                                max: subConfig.max
-                            }
-                            break
+                const childModel = {}
+                switch(subConfig.type) {
+                    case 'string': {
+                        childModel.options = {
+                            label: subConfig.title,
+                            min: subConfig.min,
+                            max: subConfig.max
                         }
-                        case 'checkbox': {
-                            childModel.options = {
-                                label: subConfig.title,
-                                min: subConfig.min,
-                                max: subConfig.max,
-                                list: subConfig.list
-                            }
-                            break
+                        break
+                    }
+                    case 'checkbox': {
+                        childModel.options = {
+                            label: subConfig.title,
+                            min: subConfig.min,
+                            max: subConfig.max,
+                            list: subConfig.list
                         }
+                        break
                     }
-                    childModel.mapStateToProps = (state) => {
-                        return getState$().childData || {}
-                    }
-                    childModel.options.onChange = (value, child) => {
-                        let { childData } = getState$()
-                        if (childData.error) {
-                            dispatch$(child.actions.setErrorMsg(''))
-                        }
-                        collector.options.onChange && collector.options.onChange()
-                    }
-                    return CollectorFactory(typeModelMap[subConfig.type], childModel)
                 }
-                child = generateCollector(collector.options.config) 
-                dispatch$(collector.actions.setChild(child))
-                dispatch$(collector, 'updateRedcuer')
-                if (collector.options.onSwitch) {
-                    collector.options.onSwitch(collector)
+                childModel.mapStateToProps = (state) => {
+                    return getState$().childData || {}
                 }
+                childModel.options.onChange = (value, child) => {
+                    let { childData } = getState$()
+                    if (childData.error) {
+                        dispatch$(child.actions.setErrorMsg(''))
+                    }
+                    collector.options.onChange && collector.options.onChange()
+                }
+                return CollectorFactory(typeModelMap[subConfig.type], childModel)
             }
-            // 设置开关
-            dispatch$(collector.actions.setChecked(!status.checked))
+            
+            let child = generateCollector(collector.options.config) 
+            dispatch$(collector.actions.setChild(child))
+            dispatch$(collector, 'updateRedcuer')
         },
         validate: () => (dispatch$, getState$, collector) => {
-            let { child } = getState$()
+            let { child} = getState$()
             return dispatch$(child, 'validate')
+        },
+        setValue: (value) => (dispatch$, getState$, collector) => {
+            let { child, status} = getState$()
+            if (!child) {
+                dispatch$(collector, 'generateCollector')
+                child = getState$().child
+            }
+            if (!status.checked) {
+                dispatch$(collector.actions.setChecked(true))
+            }
+            if (typeof value != 'undefined') {
+                dispatch$(child, 'setValue', value)
+            } else {
+                dispatch$(collector.actions.setChecked(false))
+            }
         }
     }
 }
