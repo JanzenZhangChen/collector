@@ -5,6 +5,7 @@ import ReducerOperatorFactory from '../ReducerOperatorFactory'
 import CollectorFactory from '../CollectorFactory'
 import InputCollectorModel from './InputCollectorModel'
 import CheckboxCollectorModel from './CheckboxCollectorModel'
+import AsyncCheckboxCollectorModel from './AsyncCheckboxCollectorModel'
 import _ from 'lodash'
 
 const TargetItem = ({childData = {}, status = {}, child, label, onSwitch = () => {}}) => {
@@ -120,7 +121,8 @@ const TargetItemModel = {
                 // 映射
                 const typeModelMap = {
                     string: InputCollectorModel,
-                    checkbox: CheckboxCollectorModel
+                    checkbox: CheckboxCollectorModel,
+                    asyncCheckbox: AsyncCheckboxCollectorModel
                 }
                 const childModel = {}
                 switch(subConfig.type) {
@@ -141,6 +143,14 @@ const TargetItemModel = {
                         }
                         break
                     }
+                    case 'asyncCheckbox': {
+                        childModel.options = {
+                            label: subConfig.title,
+                            min: subConfig.min,
+                            max: subConfig.max
+                        }
+                        break
+                    }
                 }
                 childModel.mapStateToProps = (state) => {
                     return getState$().childData || {}
@@ -158,6 +168,7 @@ const TargetItemModel = {
             let child = generateCollector(collector.options.config) 
             dispatch$(collector.actions.setChild(child))
             dispatch$(collector, 'updateRedcuer')
+            dispatch$(child, 'init')
         },
         validate: () => (dispatch$, getState$, collector) => {
             let { child} = getState$()
@@ -165,14 +176,14 @@ const TargetItemModel = {
         },
         setValue: (value) => (dispatch$, getState$, collector) => {
             let { child, status} = getState$()
-            if (!child) {
-                dispatch$(collector, 'generateCollector')
-                child = getState$().child
-            }
-            if (!status.checked) {
-                dispatch$(collector.actions.setChecked(true))
-            }
             if (typeof value != 'undefined') {
+                if (!child) {
+                    dispatch$(collector, 'generateCollector')
+                    child = getState$().child
+                }
+                if (!status.checked) {
+                    dispatch$(collector.actions.setChecked(true))
+                }
                 dispatch$(child, 'setValue', value)
             } else {
                 dispatch$(collector.actions.setChecked(false))

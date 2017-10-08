@@ -50,6 +50,12 @@ const config = {
         title: '性别',
         min: 1,
         max: 2
+    },
+    direction: {
+        type: 'asyncCheckbox',
+        title: '方向',
+        min: 1,
+        max: 2
     }
 }
 

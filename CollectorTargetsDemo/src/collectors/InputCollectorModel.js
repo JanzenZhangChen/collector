@@ -85,6 +85,8 @@ const InputCollectorModel = {
         }
     },
     _services: {
+        init: () => (dispatch$, getState$, collector) => {
+        },
         setValue: (value) => (dispatch$, getState$, collector) => {
             dispatch$(collector.actions.setValue(value))
         },

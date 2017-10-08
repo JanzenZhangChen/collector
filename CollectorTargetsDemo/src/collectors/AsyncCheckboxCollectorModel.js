@@ -3,23 +3,35 @@ import { combineReducers } from 'redux'
 import { connect } from 'react-redux'
 import ReducerOperatorFactory from '../ReducerOperatorFactory'
 
-const CheckboxReact = ({list = [], data = [], onChange = () => {}, error, label}) => {
+const CheckboxReact = ({assist, data = [], onChange = () => {}, error, label}) => {
     return (
         <div>
-            {list.map((item) => {
-                return (
-                    <span key={item.value}>
-                        {item.label}
-                        <input onChange={(e) => {onChange(item)}} type="checkbox" checked={data.includes(item.value)}/>
-                    </span>
-                )
-            })}
+            {assist.loading ? <div>loading...</div> : 
+                assist.list.map((item) => {
+                    return (
+                        <span key={item.value}>
+                            {item.label}
+                            <input onChange={(e) => {onChange(item)}} type="checkbox" checked={data.includes(item.value)}/>
+                        </span>
+                    )
+                })
+            }
         </div>
     )
 }
 
+const assistReducer = (collector) => {
+    return ReducerOperatorFactory(collector.actionTypes.setAssist, {
+        [collector.actionTypes.setList]: 'list',
+        [collector.actionTypes.setLoading]: 'loading'
+    }, {
+        list: [],
+        loading: true
+    })
+}
+
 const dataReducer = (collector) => {
-    return ReducerOperatorFactory(collector.actionTypes.setValue, {}, [collector.options.list[0].value])
+    return ReducerOperatorFactory(collector.actionTypes.setValue, {}, [])
 }
 
 const errorReducer = (collector) => {
@@ -28,12 +40,13 @@ const errorReducer = (collector) => {
 
 const rootReducer = (collector) => {
     return combineReducers({
+        assist: assistReducer(collector),
         data: dataReducer(collector),
         error: errorReducer(collector)
     })   
 }
 
-const CheckCollectorModel = {
+const AsyncCheckCollectorModel = {
     _view: CheckboxReact,
     mapStateToProps: undefined,
     _mapDispatchToProps: (dispatch, collector) => {
@@ -41,7 +54,6 @@ const CheckCollectorModel = {
             onChange: (item) => {
                 dispatch(collector.services.onChange(item))
             },
-            list: collector.options.list,
             label: collector.options.label
         }
     },
@@ -55,13 +67,29 @@ const CheckCollectorModel = {
     _reducers: {
         root: rootReducer,
         data: dataReducer,
-        error: errorReducer
+        error: errorReducer,
+        assist: assistReducer
     },
     _actionTypes: [
+        'setList',
+        'setLoading',
         'setValue',
+        'setAssist',
         'setErrorMsg'
     ],
     _actions: {
+        setList: (value) => (collector) => {
+            return {
+                type: collector.actionTypes.setList,
+                value: value
+            }
+        },
+        setLoading: (value) => (collector) => {
+            return {
+                type: collector.actionTypes.setLoading,
+                value: value
+            }
+        },
         setValue: (value) => (collector) => {
             return {
                 type: collector.actionTypes.setValue,
@@ -77,6 +105,19 @@ const CheckCollectorModel = {
     },
     _services: {
         init: () => (dispatch$, getState$, collector) => {
+            dispatch$(collector, 'getAsyncData')
+        },
+        getAsyncData: () => (dispatch$, getState$, collector) => {
+            // 获取异步数据
+            dispatch$(collector.actions.setLoading(true))
+            setTimeout(() => {
+                dispatch$(collector.actions.setList([
+                    {label: '左边',value: 1},
+                    {label: '右边',value: 2},
+                    {label: '中间', value: 3}
+                ]))
+                dispatch$(collector.actions.setLoading(false))
+            }, 2000)
         },
         setValue: (value) => (dispatch$, getState$, collector) => {
             dispatch$(collector.actions.setValue(value))
@@ -130,4 +171,4 @@ const CheckCollectorModel = {
     }
 }
 
-export default CheckCollectorModel
+export default AsyncCheckCollectorModel
