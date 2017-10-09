@@ -16,7 +16,8 @@ const onSetValueClick = () => (dispatch, getState) => {
     const initValue = {
         name: 'janzenzhang',
         location: 'guangzhou,China',
-        sex: [1,2,3]
+        sex: [1,2,3],
+        direction: [2]
     }
     dispatch(AdtargetsCollector.services.setValue(initValue))
 }

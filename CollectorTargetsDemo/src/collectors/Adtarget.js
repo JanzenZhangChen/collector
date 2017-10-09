@@ -6,12 +6,16 @@ import CollectorFactory from '../CollectorFactory'
 import TargetItemModel from './TargetItem'
 import _ from 'lodash'
 
-const Adtargets = ({childs}) => {
+const Adtargets = ({childs, status}) => {
     return (
         <div>
             {Object.keys(childs).map((key) => {
                 let child = childs[key]
-                return <child.view key={child.key}/>
+                if (status.displayFields.includes(key)) {
+                    return <child.view key={child.key}/>
+                } else {
+                    return null
+                }
             })}
         </div>
     )
@@ -27,9 +31,11 @@ const dataReducer = (collector) => (state = {}, action) => {
 
 const statusReducer = (collector) => {
     return ReducerOperatorFactory(collector.actionTypes.setStatus, {
-        [collector.actionTypes.setLastTarget]: 'lastTarget'
+        [collector.actionTypes.setLastTarget]: 'lastTarget',
+        [collector.actionTypes.setDisplayFields]: 'displayFields',
     }, {
-        lastTarget: false
+        lastTarget: false,
+        displayFields: []
     })
 }
 
@@ -63,12 +69,19 @@ const AdtargetsModel = {
     _actionTypes: [
         'setChilds',
         'emptyAction',
-        'setLastTarget'
+        'setLastTarget',
+        'setDisplayFields'
     ],
     _actions: {
         setChilds: (value) => (collector) => {
             return {
                 type: collector.actionTypes.setChilds,
+                value: value
+            }
+        },
+        setDisplayFields: (value) => (collector) => {
+            return {
+                type: collector.actionTypes.setDisplayFields,
                 value: value
             }
         },
@@ -100,42 +113,52 @@ const AdtargetsModel = {
                 type: collector.actionTypes.emptyAction
             })
         },
-        init: (config) => (dispatch$, getState$, collector) => {
-            const collectorObj = {}
-            Object.keys(config).map((key) => {
-                collectorObj[key] = CollectorFactory(TargetItemModel, {
-                    options: {
-                        label: config[key].title,
-                        config: config[key],
-                        onChange: () => {
-                            const { status } = getState$()
-                            if (status.lastTarget != key) {
-                                dispatch$(collector.actions.setLastTarget(key))
-                                if (status.lastTarget) {
-                                    dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
-                                } else {
-                                    dispatch$(collector, 'validateAll', [key]).then(() => {}, () => {})
+        init: (config, displayFields) => (dispatch$, getState$, collector) => {
+            collector.config = config
+
+            dispatch$(collector.actions.setDisplayFields(displayFields))
+
+            dispatch$(collector, 'generateChilds', config, displayFields)
+        },
+        generateChilds: (config, displayFields) => (dispatch$, getState$, collector) => {
+            const collectorObj = getState$().childs
+
+            displayFields.map((key) => {
+                if (config[key] && !collectorObj[key]) {
+                    collectorObj[key] = CollectorFactory(TargetItemModel, {
+                        options: {
+                            label: config[key].title,
+                            config: config[key],
+                            onChange: () => {
+                                const { status } = getState$()
+                                if (status.lastTarget != key) {
+                                    dispatch$(collector.actions.setLastTarget(key))
+                                    if (status.lastTarget) {
+                                        dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
+                                    } else {
+                                        dispatch$(collector, 'validateAll', [key]).then(() => {}, () => {})
+                                    }
+                                }
+                            },
+                            onSwitch: () => {
+                                const { status } = getState$()
+                                if (status.lastTarget != key) {
+                                    dispatch$(collector.actions.setLastTarget(key))
+                                    if (status.lastTarget) {
+                                        dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
+                                    } else {
+                                        dispatch$(collector, 'validateAll', [key]).then(() => {}, () => {})
+                                    }
                                 }
                             }
                         },
-                        onSwitch: () => {
-                            const { status } = getState$()
-                            if (status.lastTarget != key) {
-                                dispatch$(collector.actions.setLastTarget(key))
-                                if (status.lastTarget) {
-                                    dispatch$(collector, 'validateSingle', status.lastTarget).then(() => {}, () => {})
-                                } else {
-                                    dispatch$(collector, 'validateAll', [key]).then(() => {}, () => {})
-                                }
-                            }
+                        key: key,
+                        mapStateToProps: (state) => {
+                            const { data } = getState$()
+                            return data[key] || {}
                         }
-                    },
-                    key: key,
-                    mapStateToProps: (state) => {
-                        const { data } = getState$()
-                        return data[key] || {}
-                    }
-                })
+                    })
+                }
             })
             // 设置childs
             dispatch$(collector.actions.setChilds(collectorObj))
@@ -143,10 +166,25 @@ const AdtargetsModel = {
             dispatch$(collector, 'updateRedcuer')
         },
         setValue: (initValue = {}) => (dispatch$, getState$, collector) => {
-            const {childs} = getState$()
-            Object.keys(childs).map((key) => {
+            let {status, childs} = getState$()
+            const newDisplayFields = status.displayFields.concat([])
+            const config = collector.config
+
+            Object.keys(initValue).forEach((key) => {
+                if (!childs[key] && config[key]) {
+                    newDisplayFields.push(key)
+                }
+            })
+
+            dispatch$(collector.actions.setDisplayFields(newDisplayFields))
+            dispatch$(collector, 'generateChilds', config, newDisplayFields)
+            // 更新childs之后再获取
+            childs = getState$().childs
+
+            Object.keys(childs).forEach((key) => {
                 dispatch$(childs[key], 'setValue', initValue[key])
             })
+
             dispatch$(collector, 'validateAll', []).then(() => {}, () => {})
         },
         validateAll: (except = []) => (dispatch$, getState$, collector) => {

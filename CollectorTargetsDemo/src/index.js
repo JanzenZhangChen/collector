@@ -59,13 +59,7 @@ const config = {
     }
 }
 
-const initValue = {
-    name: 'janzenzhang',
-    location: 'guangzhou,China',
-    sex: [1,2,3]
-}
+const defaultFields = ['name', 'sex', 'direction']
 
 // 需要初始化
-store.dispatch(AdtargetsCollector.services.init(config))
-
-store.dispatch(AdtargetsCollector.services.setValue(initValue))
+store.dispatch(AdtargetsCollector.services.init(config, defaultFields))
