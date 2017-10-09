@@ -78,6 +78,12 @@ const AsyncCheckCollectorModel = {
         'setErrorMsg'
     ],
     _actions: {
+        setAssist: (value) => (collector) => {
+            return {
+                type: collector.actionTypes.setAssist,
+                value: value
+            }
+        },
         setList: (value) => (collector) => {
             return {
                 type: collector.actionTypes.setList,
@@ -122,6 +128,22 @@ const AsyncCheckCollectorModel = {
         setValue: (value) => (dispatch$, getState$, collector) => {
             dispatch$(collector.actions.setValue(value))
         },
+        getValue: () => (dispatch$, getState$, collector) => {
+            return getState$().data
+        },
+        getState: () => (dispatch$, getState$, collector) => {
+            const state = getState$()
+            if (state.assist.loading) {
+                return null
+            } else {
+                return state
+            }
+        },
+        setState: (state) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setAssist(state.assist))
+            dispatch$(collector.actions.setValue(state.data))
+            dispatch$(collector.actions.setErrorMsg(state.error))
+        },
         onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas
@@ -143,8 +165,7 @@ const AsyncCheckCollectorModel = {
         },
         validate: (value) => (dispatch$, getState$, collector) => {
             if (!value) {
-                let { data } = getState$()
-                value = data
+                value = dispatch$(collector, 'getValue')
             }
             const MAX_LENGTH = collector.options.max
             const MIN_LENGTH = collector.options.min

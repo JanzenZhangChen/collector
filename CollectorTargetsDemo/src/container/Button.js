@@ -22,12 +22,37 @@ const onSetValueClick = () => (dispatch, getState) => {
     dispatch(AdtargetsCollector.services.setValue(initValue))
 }
 
+const onGetAllStateClick = () => (dispatch, getState) => {
+    const allState = AdtargetsCollector.services.getAllState()(dispatch, getState)
+    window.allState = allState
+    console.log(JSON.stringify(allState))
+}
+
+const onSetAllStateClick = () => (dispatch, getState) => {
+    const allState = window.allState
+    if (allState) {
+        AdtargetsCollector.services.setAllState(allState)(dispatch, getState)
+    } else {
+        let defaultState = {"name":{"state":{"data":"1241231","error":false},"status":{"checked":true}},"sex":{"state":{"data":[1,2],"error":false},"status":{"checked":true}},"direction":{"state":{"assist":{"list":[{"label":"左边","value":1},{"label":"右边","value":2},{"label":"中间","value":3}],"loading":false},"data":[3,2],"error":""},"status":{"checked":true}}}
+        AdtargetsCollector.services.setAllState(defaultState)(dispatch, getState)
+    }
+}
+
 const Button = ({onClick, dispatch}) => {
     return (
         <div>
-            <button style={{marginRight: '10px'}} onClick={() => {
+            <button style={{marginBottom: '10px'}} onClick={() => {
+                dispatch(onSetAllStateClick(window.allState))
+            }}>黏贴所有状态（有异步数据）</button>
+            <br/>
+            <button style={{marginBottom: '10px'}} onClick={() => {
+                dispatch(onGetAllStateClick())
+            }}>复制所有状态（有异步数据）</button>
+            <br/>
+            <button style={{marginBottom: '10px'}} onClick={() => {
                 dispatch(onSetValueClick())
-            }}>设置数据</button>
+            }}>设置默认数据（无异步数据）</button>
+            <br/>
             <button onClick={() => {
                 dispatch(onSubmitClick())
             }}>提交</button>

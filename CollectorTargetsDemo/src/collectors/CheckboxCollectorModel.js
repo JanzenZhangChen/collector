@@ -81,6 +81,16 @@ const CheckCollectorModel = {
         setValue: (value) => (dispatch$, getState$, collector) => {
             dispatch$(collector.actions.setValue(value))
         },
+        getValue: () => (dispatch$, getState$, collector) => {
+            return getState$().data
+        },
+        getState: () => (dispatch$, getState$, collector) => {
+            return getState$()
+        },
+        setState: (state) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setValue(state.data))
+            dispatch$(collector.actions.setErrorMsg(state.error))
+        },
         onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas

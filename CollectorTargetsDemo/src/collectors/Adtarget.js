@@ -187,6 +187,24 @@ const AdtargetsModel = {
 
             dispatch$(collector, 'validateAll', []).then(() => {}, () => {})
         },
+        getAllState: () => (dispatch$, getState$, collector) => {
+            const state = {}
+            const {childs} = getState$()
+
+            Object.keys(childs).forEach((key) => {
+                let childState = dispatch$(childs[key], 'getState')
+                if (childState) {
+                    state[key] = childState
+                }
+            })
+            return state
+        },
+        setAllState: (allState) => (dispatch$, getState$, collector) => {
+            const { childs } = getState$()
+            Object.keys(childs).forEach((key) => {
+                dispatch$(childs[key], 'setState', allState[key])
+            })
+        },
         validateAll: (except = []) => (dispatch$, getState$, collector) => {
             const { childs, data } = getState$()
             return Promise.all(Object.keys(childs).map((key) => {

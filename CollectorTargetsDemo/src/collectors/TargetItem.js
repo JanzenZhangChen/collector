@@ -188,6 +188,26 @@ const TargetItemModel = {
             } else {
                 dispatch$(collector.actions.setChecked(false))
             }
+        },
+        setState: (state) => (dispatch$, getState$, collector) => {
+            let { child, status} = getState$()
+            if (typeof state != 'undefined') {
+                if (!child) {
+                    dispatch$(collector, 'generateCollector')
+                    child = getState$().child
+                }
+                dispatch$(collector.actions.setChecked(state.status.checked))
+                dispatch$(child, 'setState', state.state)
+            } else {
+                dispatch$(collector.actions.setChecked(false))
+            }
+        },
+        getState: (value) => (dispatch$, getState$, collector) => {
+            let { child, status } = getState$()
+            return child ? {
+                state: dispatch$(child, 'getState'),
+                status: status
+            } : null
         }
     }
 }

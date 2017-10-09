@@ -90,6 +90,16 @@ const InputCollectorModel = {
         setValue: (value) => (dispatch$, getState$, collector) => {
             dispatch$(collector.actions.setValue(value))
         },
+        getValue: () => (dispatch$, getState$, collector) => {
+            return getState$().data
+        },
+        getState: () => (dispatch$, getState$, collector) => {
+            return getState$()
+        },
+        setState: (state) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setValue(state.data))
+            dispatch$(collector.actions.setErrorMsg(state.error))
+        },
         onChange: (value) => (dispatch$, getState$, collector) => {
             if (collector.options.onChange) {
                 collector.options.onChange(value, collector)
