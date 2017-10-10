@@ -103,7 +103,7 @@ const _reducers = {
  - **_actionTypes**
  数组。库会对_actionTypes进行加工，生成actionTypes，添加上唯一后缀，防止实例实例之间的互相影响
  - **_actions**
- 库会对_actions进行加工，生成actions，最终返回action的函数的构造函数
+ 库会对_actions进行加工，生成actions，最终返回action的构造函数
 ```javascript
 const _actions = {
     setValue: (value) => (collector) => {
@@ -115,7 +115,7 @@ const _actions = {
 }
 ```
  - **_services**
- 解耦的actionCreator等于service。因为actionCreator的参数getState获得的是全局的store，与项目强耦合。所以我们用mapStateToProps来将store的数据映射到数据层级。让service书写的时候对store无感知。库会对_services进行加工，生成services，可以直接被外部dispatch(services.onChange())
+ 解耦的actionCreator等于service。因为actionCreator的参数getState获得的是全局的store，与项目强耦合。所以我们用mapStateToProps来将store的数据映射到getState$的返回值中。让service书写的时候对store无感知。库会对_services进行加工，生成services，可以直接被外部dispatch(services.onChange())
 ```javascript
 _services: {
     /**
@@ -139,7 +139,7 @@ _services: {
 
 ## 如何使用Collector
 
- - **将reducer还有view部署到现有项目中**
+ - **将reducer还有view部署到现有项目中（依赖redux-thunk插件）**
 ```javascript
 const store = createStore(combineReducers({
     name: NameInputCollector.reducers.root
@@ -157,7 +157,7 @@ render(
 ```javascript
 const _services = {
     validate: (value) => (dispatch$, getState$, collector) => {
-        const otherCollector = options.otherCollector
+        const otherCollector = collector.options.otherCollector
         // 获取别的人actionTypes来dispatch$
         dispatch$({
             type: otherCollector.actionTypes.setValue,
