@@ -202,6 +202,16 @@ const TargetItemModel = {
                 dispatch$(collector.actions.setChecked(false))
             }
         },
+        setAssistState: (state) => (dispatch$, getState$, collector) => {
+            let { child, status} = getState$()
+            if (typeof state != 'undefined') {
+                if (!child) {
+                    dispatch$(collector, 'generateCollector')
+                    child = getState$().child
+                }
+                dispatch$(child, 'setAssistState', state.state)
+            }
+        },
         getState: (value) => (dispatch$, getState$, collector) => {
             let { child, status } = getState$()
             return child ? {

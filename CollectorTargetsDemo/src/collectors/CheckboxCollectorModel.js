@@ -91,6 +91,9 @@ const CheckCollectorModel = {
             dispatch$(collector.actions.setValue(state.data))
             dispatch$(collector.actions.setErrorMsg(state.error))
         },
+        setAssistState: (state) => (dispatch$, getState$, collector) => {
+            // 没有辅助数据
+        },
         onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas

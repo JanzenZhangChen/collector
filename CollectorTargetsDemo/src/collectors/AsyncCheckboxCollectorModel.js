@@ -144,6 +144,9 @@ const AsyncCheckCollectorModel = {
             dispatch$(collector.actions.setValue(state.data))
             dispatch$(collector.actions.setErrorMsg(state.error))
         },
+        setAssistState: (state) => (dispatch$, getState$, collector) => {
+            dispatch$(collector.actions.setAssist(state.assist))
+        },
         onChange: (item) => (dispatch$, getState$, collector) => {
             let { data } = getState$()
             let newDatas

@@ -100,6 +100,9 @@ const InputCollectorModel = {
             dispatch$(collector.actions.setValue(state.data))
             dispatch$(collector.actions.setErrorMsg(state.error))
         },
+        setAssistState: (state) => (dispatch$, getState$, collector) => {
+            // 没有辅助数据
+        },
         onChange: (value) => (dispatch$, getState$, collector) => {
             if (collector.options.onChange) {
                 collector.options.onChange(value, collector)
