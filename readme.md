@@ -21,6 +21,10 @@
  5. [创意模块，实现根据配置生成的表单，包括集装箱](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorCreativesDemo)
  6. [模拟定向模块，实现根据配置生成可选择的表单](https://codesandbox.io/s/github/JanzenZhangChen/collector/tree/master/CollectorTargetsDemo)
 
+## 结构示意图
+
+![](http://km.oa.com/files/photos/pictures/201711/1510107780_23_w1138_h921.png)
+
 ## 如何创建Collector
 
  - **collector模型**
