@@ -8,7 +8,7 @@ const CollectorFactory = (collector, customeCollector) => {
         return new Date().getTime() + parseInt(Math.random() * 100000000, 10)
     }
 
-    // dispatch$的构造函数，通过这个可以快速dispatch一个service
+    // dispatch$的构造函数，通过这个可以快速dispatch一个service,同时有返回值
     const _dispatch$ = (dispatch, getState) => (targetCollector, serviceName, ...args) => {
         // 如果有serviceName的话 就说明dispatch一个service
         if (serviceName && typeof targetCollector._services[serviceName] == 'function') {
@@ -16,8 +16,13 @@ const CollectorFactory = (collector, customeCollector) => {
                 return targetCollector.mapStateToProps(getState())
             }, targetCollector)
         } else {
-            // 否则说明是dispatch一个action
-            dispatch(targetCollector)
+            if (typeof targetCollector == 'function') {
+                // 如果是函数说明是services，则可能有返回值的
+                return targetCollector(dispatch, getState)
+            } else {
+                // 否则说明是dispatch一个action
+                dispatch(targetCollector)
+            }
         }
     }
 
